@@ -1,0 +1,62 @@
+{
+  "name": "payment-api-demo",
+  "version": "1.0.0",
+  "description": "A simple payment API demo that integrates 3rd party payment providers eg Flutterwave, Paystack etc",
+  "main": ".eslintrc.js",
+  "scripts": {
+    "dev": "DEBUG=payment-api-demo:* nodemon --exec babel-node -- src/server.ts --extensions '.ts,.tsx'",
+    "release": "npm run clean && npm run build-app && npm run start",
+    "clean": "rm -rf dist && mkdir dist",
+    "build": "npm run clean && npm run build-app",
+    "build-app": "babel src -s -d dist --extensions '.ts,.tsx'",
+    "start": "node dist/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/okezieobi/payment-api-demo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/okezieobi/payment-api-demo/issues"
+  },
+  "homepage": "https://github.com/okezieobi/payment-api-demo#readme",
+  "dependencies": {
+    "cors": "latest",
+    "debug": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "mongoose": "^6.2.0",
+    "mongoose-paginate-v2": "^1.6.1",
+    "morgan": "latest",
+    "node-fetch": "^3.2.0",
+    "swagger-jsdoc": "latest",
+    "swagger-ui-express": "latest",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "latest",
+    "@babel/core": "latest",
+    "@babel/node": "latest",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "latest",
+    "@babel/register": "latest",
+    "@tsconfig/recommended": "latest",
+    "@types/cookie-parser": "latest",
+    "@types/cors": "latest",
+    "@types/debug": "latest",
+    "@types/express": "latest",
+    "@types/morgan": "latest",
+    "@types/node": "latest",
+    "@types/swagger-jsdoc": "latest",
+    "@types/swagger-ui-express": "latest",
+    "@typescript-eslint/eslint-plugin": "^5.10.2",
+    "@typescript-eslint/parser": "^5.10.2",
+    "eslint": "^8.8.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.4",
+    "nodemon": "latest",
+    "typescript": "latest"
+  }
+}
