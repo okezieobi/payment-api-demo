@@ -11,7 +11,7 @@ interface handleServiceInterface {
 
 interface ServiceResult {
     message: string;
-    data: unknown;
+    data: object;
 }
 
 export default abstract class Controller {

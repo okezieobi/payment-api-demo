@@ -16,7 +16,7 @@ export default class UserController extends Controller implements UserController
 
   Jwt: typeof JWT;
 
-  constructor(Service = UserServices, Jwt = JWT, key = 'User') {
+  constructor(Service = UserServices, Jwt = JWT, key = 'user') {
     super(key);
     this.Service = Service;
     this.Jwt = Jwt;

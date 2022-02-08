@@ -4,7 +4,7 @@
   "description": "A simple payment API demo that integrates 3rd party payment providers eg Flutterwave, Paystack etc",
   "main": ".eslintrc.js",
   "scripts": {
-    "dev": "DEBUG=payment-api-demo:* nodemon --exec babel-node -- src/server.ts --extensions '.ts,.tsx'",
+    "dev": "NODE_ENV=development DEBUG=payment-api-demo:* nodemon --exec babel-node -- src/server.ts --extensions '.ts,.tsx'",
     "release": "npm run clean && npm run build-app && npm run start",
     "clean": "rm -rf dist && mkdir dist",
     "build": "npm run clean && npm run build-app",
