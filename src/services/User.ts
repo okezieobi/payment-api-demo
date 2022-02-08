@@ -6,10 +6,13 @@ interface UserInterface {
     schema?: object;
 }
 
-interface SignupArg {
-    email: string;
-    name: string;
+interface LoginArg {
+    email: string
     password: string;
+}
+
+interface SignupArg extends LoginArg {
+    name: string;
 }
 
 export default class UserServices implements UserInterface {
@@ -21,6 +24,7 @@ export default class UserServices implements UserInterface {
     this.model = model;
     this.schema = schema;
     this.signupUser = this.signupUser.bind(this);
+    this.loginUser = this.loginUser.bind(this);
   }
 
   async signupUser(arg: SignupArg) {
@@ -28,5 +32,15 @@ export default class UserServices implements UserInterface {
     const data = newUser.toObject();
     delete data.password;
     return { message: 'New user successfully signed up', data };
+  }
+
+  async loginUser({ email, password }: LoginArg) {
+    const user = new this.schema.User(email, password);
+    await user.validateLogin();
+    const userExists = await this.model.User.findOne().byEmail(user.email);
+    await userExists.validatePassword(user.password);
+    const data = userExists.toObject();
+    delete data.password;
+    return { message: 'Registered user successfully signed in', data };
   }
 }

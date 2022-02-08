@@ -32,7 +32,7 @@ const errorHandlers = {
         isClient: errorMarkers.isClient,
         response: {
           status: errorMarkers.status,
-          message: `Duplicate key value, validation failed at ${err.location}`,
+          message: `Duplicate key value, validation failed at ${err.location} model`,
           data: {
             ...err,
             msg: err.message,
@@ -82,7 +82,7 @@ const errorHandlers = {
   },
   handleCustomError(err: AppError, req: Request, res: Response, next: NextFunction) {
     const error = { status: errorMarkers.status, message: err.message, data: err.data };
-    switch (err.name) {
+    switch (err.data.name) {
       case 'ArgumentError':
         res.status(400);
         next({ isClient: errorMarkers.isClient, response: error });

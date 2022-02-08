@@ -1,9 +1,11 @@
 import Ajv from 'ajv';
 import ajvFormats from 'ajv-formats';
+import ajvKeywords from 'ajv-keywords';
 
 const ajv = new Ajv({ allErrors: true });
 
 ajvFormats(ajv);
+ajvKeywords(ajv);
 
 interface LoginSchema {
     email: string;

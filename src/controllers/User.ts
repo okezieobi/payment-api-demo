@@ -22,6 +22,7 @@ export default class UserController extends Controller implements UserController
     this.Jwt = Jwt;
     this.setJWT = this.setJWT.bind(this);
     this.signupUser = this.signupUser.bind(this);
+    this.loginUser = this.loginUser.bind(this);
   }
 
   setJWT(req: Request, res: Response, next: NextFunction) {
@@ -38,6 +39,13 @@ export default class UserController extends Controller implements UserController
     const { signupUser } = new this.Service();
     return this.handleService({
       method: signupUser, res, next, arg: body, status: 201,
+    });
+  }
+
+  loginUser({ body }: Request, res: Response, next: NextFunction) {
+    const { loginUser } = new this.Service();
+    return this.handleService({
+      method: loginUser, res, next, arg: body,
     });
   }
 }

@@ -1,19 +1,27 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable prefer-arrow-callback */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
-import { Schema, model, Document } from 'mongoose';
+import {
+  Schema, model, Document, Query, Model,
+} from 'mongoose';
 import validator from 'validator';
 
 import bcrypt from '../utils/bcrypt';
 import AppError from '../errors';
 
-interface UserSchema {
+interface UserInterface {
     name: string;
     email: string;
     password?: string;
 }
 
-const schema = new Schema<UserSchema>({
+interface UserQueryHelpers {
+  byEmail(email: string): Query<any, Document<UserInterface>> & UserQueryHelpers;
+  byAuth(id: string): Query<any, Document<UserInterface>> & UserQueryHelpers;
+}
+
+const schema = new Schema<UserInterface>({
   name: {
     type: String,
     required: [true, 'Name is required'],
@@ -54,14 +62,16 @@ schema.post(/save/, function handleUniqueErr(err: any, res: any, next: Function)
   } else next();
 });
 
-schema.query.byEmail = async function byEmail(email: string): Promise<Document> {
+schema.query.byEmail = async function byEmail(email: string):
+  Promise<Query<any, Document<UserInterface>> & UserQueryHelpers> {
   const doc = await this.where({ email: { $regex: email, $options: 'i' } }, '').exec();
   if (doc == null) {
     throw new AppError(`Registered user with '${email}' does not exist, please sign up`, 'Query', { param: 'email', value: email, msg: 'User email not found, email verification failed' });
   }
   return doc;
 };
-schema.query.byAuth = async function byAuth(id: string): Promise<Document> {
+schema.query.byAuth = async function byAuth(id: string):
+Promise<Query<any, Document<UserInterface>> & UserQueryHelpers> {
   const isMongoId = validator.isMongoId(`${id}`);
   if (!isMongoId) {
     throw new AppError('Verified user id from jwt does not match MongoDB Id format', 'Authorization', { param: 'user._id', msg: 'User id validation failed' });
@@ -73,7 +83,14 @@ schema.query.byAuth = async function byAuth(id: string): Promise<Document> {
   return doc;
 };
 
-const UserModel = model<UserSchema>('User', schema);
+schema.methods.validatePassword = async function validatePassword(password:string, param: string = 'password') {
+  const isPassword = await bcrypt.compareString(password, this.password);
+  if (!isPassword) {
+    throw new AppError('Password provided does not match user', 'Authorization', { param, msg: 'Authentication failed, mismatched password' });
+  }
+};
+
+const UserModel = model<UserInterface, Model<UserInterface, UserQueryHelpers>>('User', schema);
 
 UserModel.syncIndexes().catch(console.error);
 
