@@ -11,14 +11,15 @@ import bcrypt from '../utils/bcrypt';
 import AppError from '../errors';
 
 interface UserInterface {
+    phone_number: string;
     name: string;
     email: string;
     password?: string;
 }
 
 interface UserQueryHelpers {
-  byEmail(email: string): Query<any, Document<UserInterface>> & UserQueryHelpers;
-  byAuth(id: string): Query<any, Document<UserInterface>> & UserQueryHelpers;
+  byUnique(email: string): Promise<Query<any, Document<UserInterface>> & UserQueryHelpers>;
+  byAuth(id: string): Promise<Query<any, Document<UserInterface>> & UserQueryHelpers>;
 }
 
 const schema = new Schema<UserInterface>({
@@ -32,7 +33,16 @@ const schema = new Schema<UserInterface>({
     required: [true, 'Email is required'],
     validate: {
       validator: (value: string) => validator.isEmail(`${value}`),
-      message: (arg: any) => `${arg.value} is not a valid email`,
+      message: ({ value }) => `${value} is not a valid email`,
+    },
+  },
+  phone_number: {
+    type: String,
+    unique: true,
+    required: [true, 'Phone number is required'],
+    validate: {
+      validator: (value: string) => validator.isMobilePhone(`${value}`),
+      message: ({ value }) => `${value} is not a valid phone number`,
     },
   },
   password: {
@@ -62,21 +72,21 @@ schema.post(/save/, function handleUniqueErr(err: any, res: any, next: Function)
   } else next();
 });
 
-schema.query.byEmail = async function byEmail(email: string):
+schema.query.byUnique = async function QueryByUnique(user: string):
   Promise<Query<any, Document<UserInterface>> & UserQueryHelpers> {
-  const doc = await this.where({ email: { $regex: email, $options: 'i' } }, '').exec();
+  const doc = await this.where({ $or: [{ email: { $regex: user, $options: 'i' } }, { phone_number: { $regex: user, $options: 'i' } }] }, '').exec();
   if (doc == null) {
-    throw new AppError(`Registered user with '${email}' does not exist, please sign up`, 'Query', { param: 'email', value: email, msg: 'User email not found, email verification failed' });
+    throw new AppError(`Registered user with '${user}' does not exist, please sign up`, 'Query', { param: 'email', value: user, msg: 'User email not found, email verification failed' });
   }
   return doc;
 };
-schema.query.byAuth = async function byAuth(id: string):
+schema.query.byAuth = async function QueryByAuth(id: string):
 Promise<Query<any, Document<UserInterface>> & UserQueryHelpers> {
   const isMongoId = validator.isMongoId(`${id}`);
   if (!isMongoId) {
     throw new AppError('Verified user id from jwt does not match MongoDB Id format', 'Authorization', { param: 'user._id', msg: 'User id validation failed' });
   }
-  const doc = await this.where({ _id: id }).populate({ path: 'store', populate: [{ path: 'address' }, { path: 'account' }] }).populate('addresses').exec();
+  const doc = await this.where({ _id: id }).exec();
   if (doc == null) {
     throw new AppError('Verified user id from jwt not found, please sign up by creating an account', 'Authorization', { param: 'user._id', msg: 'User id not found, user authorization failed' });
   }

@@ -8,17 +8,17 @@ ajvFormats(ajv);
 ajvKeywords(ajv);
 
 interface LoginSchema {
-    email: string;
+    user: string;
     password: string;
 }
 
 export default class UserSchema implements LoginSchema {
-  email: string;
+  user: string;
 
   password: string;
 
-  constructor(email: string, password: string) {
-    this.email = email;
+  constructor(user: string, password: string) {
+    this.user = user;
     this.password = password;
   }
 
@@ -29,7 +29,7 @@ export default class UserSchema implements LoginSchema {
       allRequired: true,
       additionalProperties: false,
       properties: {
-        email: { type: 'string', format: 'email' },
+        user: { type: 'string' },
         password: { type: 'string' },
       },
     });

@@ -82,7 +82,7 @@ const errorHandlers = {
   },
   handleCustomError(err: AppError, req: Request, res: Response, next: NextFunction) {
     const error = { status: errorMarkers.status, message: err.message, data: err.data };
-    switch (err.data.name) {
+    switch (err.data?.name) {
       case 'ArgumentError':
         res.status(400);
         next({ isClient: errorMarkers.isClient, response: error });

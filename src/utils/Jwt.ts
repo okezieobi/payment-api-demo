@@ -22,17 +22,8 @@ export default class Jwt implements JwtInterface {
     });
   }
 
-  generateSync(id: string) {
+  async verify(token: string | undefined) {
     const { jwtSecret } = new Env();
-    return this.jwt.sign({
-      id,
-    }, jwtSecret ?? '', {
-      expiresIn: '3d',
-    });
-  }
-
-  async verify(token: string) {
-    const { jwtSecret } = new Env();
-    return this.jwt.verify(token, jwtSecret ?? '');
+    return this.jwt.verify(token ?? '', jwtSecret ?? '');
   }
 }

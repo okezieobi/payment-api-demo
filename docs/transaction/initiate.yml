@@ -1,0 +1,30 @@
+paths:
+  /transactions:                # path of the user from your endpoint
+    post:                 # endpoint request type (post request)
+      tags:               # Tag property
+        - Transaction           # Value of the tag
+      summary: initiates a payment as an authenticated user
+      security:
+       - headerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/initiate_transaction'
+            example:
+              amount: '500.00'
+      responses:          # server responses
+        201:
+          description: An object with product details
+        401:
+          description: Error message object in error property of response body
+        400:
+          description: Error message object in error property of response body
+components:        # Schema definition for request body
+ schemas:
+  initiate_transaction:
+    type: object
+    properties:
+      amount:
+        type: string

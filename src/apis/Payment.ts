@@ -5,7 +5,38 @@ import nodeFetch from 'node-fetch';
 import Env from '../utils/Env';
 import AppError from '../errors';
 
-const handleFetch = async (endpoint: string, method: string, body: any): Promise<object> => {
+interface Customer {
+    email: string;
+    phone_number: number;
+    name: string;
+}
+
+interface DispatchPayment {
+    tx_ref: string;
+    amount: string;
+    customer: Customer;
+}
+
+interface ApiResponseData {
+    tx_ref: string;
+    flw_ref: string;
+    id: number;
+}
+interface ApiResponse {
+  status: string;
+  message: string;
+}
+interface ApiSuccessResponse extends ApiResponse {
+  data: ApiResponseData;
+}
+
+interface VerifyTransaction extends ApiResponse {
+  transaction_id?: number;
+  data: object;
+}
+
+const handleFetch = async (endpoint: string, method: string, body: any):
+  Promise<ApiSuccessResponse> => {
   const env = new Env();
   const options = {
     method,
@@ -22,29 +53,18 @@ const handleFetch = async (endpoint: string, method: string, body: any): Promise
   }
   return response;
 };
-
-interface Customer {
-    email: string;
-    phone_number: number;
-    name: string;
-}
-
-interface DispatchPayment {
-    tx_ref: string;
-    amount: number;
-    endpoint: string;
-    customer: Customer;
-}
 export default class Payment {
   customFetch: Function;
 
   constructor(customFetch = handleFetch) {
     this.customFetch = customFetch;
+    this.dispatchPayment = this.dispatchPayment.bind(this);
+    this.verifyTransaction = this.verifyTransaction.bind(this);
   }
 
   async dispatchPayment({
-    tx_ref, amount, customer, endpoint,
-  }: DispatchPayment) {
+    tx_ref, amount, customer,
+  }: DispatchPayment): Promise<ApiSuccessResponse> {
     const method = 'POST';
     let redirect_url;
     const redirect_endpoint = 'verified-transaction';
@@ -69,6 +89,16 @@ export default class Payment {
         logo: '',
       },
     });
-    return this.customFetch(endpoint, method, body);
+    return this.customFetch('payments', method, body);
+  }
+
+  async verifyTransaction({
+    status = 'successful', message, transaction_id, data,
+  }: VerifyTransaction): Promise<ApiSuccessResponse> {
+    if (status !== 'successful') {
+      throw new AppError(message, 'Payment', data);
+    }
+    const endpoint = `transactions/${transaction_id}/verify`;
+    return this.customFetch(endpoint);
   }
 }

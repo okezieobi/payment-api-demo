@@ -14,7 +14,7 @@ if (process.env.NODE_ENV === 'development') {
   (async () => {
     const models: any = {};
     models.User = await (await import('./User')).default;
-    // models.Transaction = await (await import('./Transaction')).default;
+    models.Transaction = await (await import('./Transaction')).default;
     Object.values(models).forEach(async (model: any) => {
       await model.deleteMany({}).exec().catch(console.error);
     });

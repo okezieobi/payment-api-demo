@@ -3,7 +3,7 @@ paths:
     post:                 # endpoint request type (post request)
       tags:               # Tag property
         - User            # Value of the tag
-      summary: signs in a registered user
+      summary: signs in a registered user using email or phone number as user field and password
       requestBody:
         required: true
         content:
@@ -11,7 +11,7 @@ paths:
             schema:
               $ref: '#/components/schemas/login'
             example:
-              email: 'example@email.io'
+              user: 'example@email.io'
               password: 'password-example'
       responses:          # server responses
          200:
@@ -25,10 +25,10 @@ components:        # Schema definition for request body
   login:
     type: object
     properties:
-          email:
-            type: string
-          password:
-            type: string
+        user:
+          type: string
+        password:
+          type: string
     required:
-      - email
+      - user
       - password
