@@ -4,7 +4,7 @@ import swaggerUI from 'swagger-ui-express';
 let server;
 switch (process.env.NODE_ENV) {
   case 'production':
-    server = { url: 'https://payment-demo-api.herokuapp.com/api/v1', description: 'Deployed production ready app app on Heroku' };
+    server = { url: 'https://payment-api-demo.herokuapp.com/api/v1', description: 'Deployed production ready app app on Heroku' };
     break;
   default:
     server = { url: 'http://localhost:5000/api/v1', description: 'Local development/testing app' };
