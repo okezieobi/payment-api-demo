@@ -10,7 +10,6 @@ paths:
           description: Transaction ref filter.
           schema:
             type: string
-      parameters:
         - name: flw_ref
           in: query
           description: Flutterwave ref filter.
@@ -18,25 +17,8 @@ paths:
             type: string
       security:
        - headerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/initiate_transaction'
-            example:
-              amount: '500.00'
       responses:          # server responses
         201:
           description: An object with product details
         401:
           description: Error message object in error property of response body
-        400:
-          description: Error message object in error property of response body
-components:        # Schema definition for request body
- schemas:
-  initiate_transaction:
-    type: object
-    properties:
-      amount:
-        type: string
