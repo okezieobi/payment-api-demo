@@ -36,6 +36,7 @@ export default class TransactionService implements TransactionInterface {
     this.api = api;
     this.verifyTransaction = this.verifyTransaction.bind(this);
     this.initiatePayment = this.initiatePayment.bind(this);
+    this.listTransactions = this.listTransactions.bind(this);
   }
 
   async verifyTransaction(query: TransactionQuery) {
@@ -52,9 +53,11 @@ export default class TransactionService implements TransactionInterface {
       .findOne({ tx_ref }).exec();
     transaction!.tx_ref = tx_ref;
     transaction!.flw_ref = flw_ref;
-    transaction!.tx_id = id;
-    await transaction?.save();
-    return { message, data };
+      transaction!.tx_id = id;
+      transaction!.status = 'Successful';
+      await transaction?.save();
+      await transaction?.save();
+      return { message, data };
   }
 
   async initiatePayment({ amount, user }: InitiatePayment) {

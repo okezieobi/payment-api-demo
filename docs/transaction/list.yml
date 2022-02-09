@@ -3,7 +3,7 @@ paths:
     get:                 # endpoint request type (post request)
       tags:               # Tag property
         - Transaction           # Value of the tag
-      summary: lists transactions as an authenticated user
+      summary: lists and filters transactions as an authenticated user using described query params
       parameters:
         - name: tx_ref
           in: query
@@ -15,6 +15,20 @@ paths:
           description: Flutterwave ref filter.
           schema:
             type: string
+        - name: tx_id
+          in: query
+          description: Transaction id filter.
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Transaction id filter.
+          schema:
+            type: string
+            enum:
+              - Error
+              - Successful
+              - Pending
       security:
        - headerAuth: []
       responses:          # server responses
