@@ -8,7 +8,7 @@ import MongoosePaginate from 'mongoose-paginate-v2';
 
 import AppError from '../errors';
 
-interface TransactionQueryInterface {
+export interface TransactionQueryInterface {
     tx_ref: string;
     flw_ref?: string;
     tx_id?: number;
@@ -16,7 +16,8 @@ interface TransactionQueryInterface {
 }
 
 interface TransactionInterface extends TransactionQueryInterface {
-    user: Schema.Types.ObjectId;
+  user: Schema.Types.ObjectId;
+  remote_copy?: object;
 }
 
 interface TransactionQueryHelpers {

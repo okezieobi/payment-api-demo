@@ -65,4 +65,18 @@ export default class TransactionService implements TransactionInterface {
     await this.model.Transaction.create({ tx_ref, user });
     return paymentResponse;
   }
+
+  async listTransactions({ query, user }: any) {
+    const transactions = await this.model.Transaction.find({ ...query, user }).lean();
+    const { verifyTransaction } = new this.api.Payment();
+    if (transactions.length > 0) {
+      await Promise.all(transactions.map(async (transaction) => {
+        const txnDoc = transaction;
+        if (txnDoc.status === 'Successful') {
+          txnDoc.remote_copy = await verifyTransaction({ transaction_id: txnDoc.tx_id });
+        }
+      }));
+    }
+    return { message: 'Transactions fetched', data: transactions };
+  }
 }

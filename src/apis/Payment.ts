@@ -31,8 +31,8 @@ interface ApiResponseData {
     id: number;
 }
 interface ApiResponse {
-  status: string;
-  message: string;
+  status?: string;
+  message?: string;
 }
 interface ApiSuccessResponse extends ApiResponse {
   data: ApiResponseData;
@@ -40,7 +40,7 @@ interface ApiSuccessResponse extends ApiResponse {
 
 interface VerifyTransaction extends ApiResponse {
   transaction_id?: number;
-  data: object;
+  data?: object;
 }
 
 const handleFetch = async (endpoint: string, method: string, body: any):

@@ -17,6 +17,7 @@ export default class TransactionController extends
     this.Service = Service;
     this.initiatePayment = this.initiatePayment.bind(this);
     this.verifyTransaction = this.verifyTransaction.bind(this);
+    this.listTransactions = this.listTransactions.bind(this);
   }
 
   initiatePayment({ body }: Request, res: Response, next: NextFunction) {
@@ -30,6 +31,13 @@ export default class TransactionController extends
     const { verifyTransaction } = new this.Service();
     return this.handleService({
       method: verifyTransaction, res, next, arg: query,
+    });
+  }
+
+  listTransactions({ query }: Request, res: Response, next: NextFunction) {
+    const { listTransactions } = new this.Service();
+    return this.handleService({
+      method: listTransactions, res, next, arg: { query, user: res.locals.user },
     });
   }
 }
