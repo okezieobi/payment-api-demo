@@ -1,9 +1,17 @@
 /* eslint-disable no-console */
 /* eslint-disable camelcase */
 import nodeFetch from 'node-fetch';
+import Ajv from 'ajv';
+import ajvFormats from 'ajv-formats';
+import ajvKeywords from 'ajv-keywords';
 
 import Env from '../utils/Env';
 import AppError from '../errors';
+
+const ajv = new Ajv({ allErrors: true });
+
+ajvFormats(ajv);
+ajvKeywords(ajv);
 
 interface Customer {
     email: string;
@@ -62,9 +70,25 @@ export default class Payment {
     this.verifyTransaction = this.verifyTransaction.bind(this);
   }
 
+  static async validateInitiateTransaction(data: DispatchPayment) {
+    const schema = ajv.compile({
+      $async: true,
+      type: 'object',
+      allRequired: true,
+      additionalProperties: false,
+      properties: {
+        amount: { type: 'string' },
+        tx_ref: { type: 'string', format: 'uuid' },
+        customer: { type: 'object' },
+      },
+    });
+    return schema(data);
+  }
+
   async dispatchPayment({
     tx_ref, amount, customer,
   }: DispatchPayment): Promise<ApiSuccessResponse> {
+    await Payment.validateInitiateTransaction({ tx_ref, amount, customer });
     const method = 'POST';
     let redirect_url;
     const redirect_endpoint = 'verified-transaction';

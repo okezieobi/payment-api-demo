@@ -3,12 +3,10 @@
 import { v4 as uuid } from 'uuid';
 
 import TransactionModel from '../models/Transaction';
-import TransactionSchema from '../schemas/Transaction';
 import PaymentAPI from '../apis/Payment';
 
 interface TransactionInterface {
     model: { Transaction: typeof TransactionModel };
-    schema: { Transaction: typeof TransactionSchema };
     api: { Payment: typeof PaymentAPI };
 }
 
@@ -28,18 +26,14 @@ interface InitiatePayment {
 export default class TransactionService implements TransactionInterface {
   model: { Transaction: typeof TransactionModel };
 
-  schema: { Transaction: typeof TransactionSchema };
-
   api: { Payment: typeof PaymentAPI };
 
   constructor(
     model = { Transaction: TransactionModel },
-    schema = { Transaction: TransactionSchema },
     api = { Payment: PaymentAPI },
   ) {
     this.model = model;
     this.api = api;
-    this.schema = schema;
     this.verifyTransaction = this.verifyTransaction.bind(this);
     this.initiatePayment = this.initiatePayment.bind(this);
   }
@@ -67,9 +61,7 @@ export default class TransactionService implements TransactionInterface {
     const tx_ref: string = uuid();
     const { dispatchPayment } = new this.api.Payment();
     const customer = user.toObject();
-    const paymentArg = new this.schema.Transaction(amount, tx_ref, customer);
-    await paymentArg.validateCreateTransaction();
-    const paymentResponse = await dispatchPayment(paymentArg);
+    const paymentResponse = await dispatchPayment({ tx_ref, amount, customer });
     await this.model.Transaction.create({ tx_ref, user });
     return paymentResponse;
   }

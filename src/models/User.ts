@@ -6,20 +6,45 @@ import {
   Schema, model, Document, Query, Model,
 } from 'mongoose';
 import validator from 'validator';
+import Ajv from 'ajv';
+import ajvKeywords from 'ajv-keywords';
 
 import bcrypt from '../utils/bcrypt';
 import AppError from '../errors';
 
-interface UserInterface {
+const ajv = new Ajv({ allErrors: true });
+
+ajvKeywords(ajv);
+
+export interface LoginSchema {
+    user: string;
+    password: string;
+}
+
+const validateLogin = async (data: LoginSchema) => {
+  const schema = ajv.compile({
+    $async: true,
+    type: 'object',
+    allRequired: true,
+    additionalProperties: false,
+    properties: {
+      user: { type: 'string' },
+      password: { type: 'string' },
+    },
+  });
+  return schema(data);
+};
+
+export interface UserInterface {
     phone_number: string;
     name: string;
     email: string;
-    password?: string;
+  password?: string;
 }
 
 interface UserQueryHelpers {
-  byUnique(email: string): Promise<Query<any, Document<UserInterface>> & UserQueryHelpers>;
-  byAuth(id: string): Promise<Query<any, Document<UserInterface>> & UserQueryHelpers>;
+  byUnique(user: string, password: string): Query<any, Document<UserInterface>> & UserQueryHelpers;
+  byAuth(id: string): Query<any, Document<UserInterface>> & UserQueryHelpers;
 }
 
 const schema = new Schema<UserInterface>({
@@ -72,8 +97,9 @@ schema.post(/save/, function handleUniqueErr(err: any, res: any, next: Function)
   } else next();
 });
 
-schema.query.byUnique = async function QueryByUnique(user: string):
+schema.query.byUnique = async function QueryByUnique(user: string, password: string):
   Promise<Query<any, Document<UserInterface>> & UserQueryHelpers> {
+  await validateLogin({ user, password });
   const doc = await this.where({ $or: [{ email: { $regex: user, $options: 'i' } }, { phone_number: { $regex: user, $options: 'i' } }] }, '').exec();
   if (doc == null) {
     throw new AppError(`Registered user with '${user}' does not exist, please sign up`, 'Query', { param: 'email', value: user, msg: 'User email not found, email verification failed' });
