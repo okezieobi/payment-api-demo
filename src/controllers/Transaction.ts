@@ -37,7 +37,7 @@ export default class TransactionController extends
   listTransactions({ query }: Request, res: Response, next: NextFunction) {
     const { listTransactions } = new this.Service();
     return this.handleService({
-      method: listTransactions, res, next, arg: { query, user: res.locals.user },
+      method: listTransactions, res, next, arg: { ...query, user: res.locals.user },
     });
   }
 }

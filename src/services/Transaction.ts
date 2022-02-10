@@ -23,6 +23,13 @@ interface InitiatePayment {
     user: any;
 }
 
+interface TransactionQueryObj {
+    flw_ref?: string,
+    tx_id?: string;
+    status?: string;
+    user: any;
+}
+
 export default class TransactionService implements TransactionInterface {
   model: { Transaction: typeof TransactionModel };
 
@@ -69,8 +76,9 @@ export default class TransactionService implements TransactionInterface {
     return paymentResponse;
   }
 
-  async listTransactions({ query, user }: any) {
-    const transactions = await this.model.Transaction.find({ ...query, user }).lean();
+  async listTransactions(arg: TransactionQueryObj) {
+    const transactions = await this.model.Transaction
+      .find({ ...arg, tx_id: parseInt(arg.tx_id || '', 10) }).lean();
     const { verifyTransaction } = new this.api.Payment();
     if (transactions.length > 0) {
       await Promise.all(transactions.map(async (transaction) => {
